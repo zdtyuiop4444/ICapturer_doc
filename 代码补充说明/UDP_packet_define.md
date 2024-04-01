@@ -1,41 +1,44 @@
 # 1. UDP packet formats
 
-- [1. UDP packet formats](#1-udp-packet-formats)
-  - [1.1. General UDP packet format](#11-general-udp-packet-format)
-    - [1.1.1. Packet header](#111-packet-header)
-    - [1.1.2. Packet type](#112-packet-type)
-  - [1.2. Format of individual packet type](#12-format-of-individual-packet-type)
-    - [1.2.1. Server open packet](#121-server-open-packet)
-      - [1.2.1.1. About port](#1211-about-port)
-    - [1.2.2. Request port packet](#122-request-port-packet)
-      - [1.2.2.1. Base station type](#1221-base-station-type)
-    - [1.2.3. Open port packet](#123-open-port-packet)
-      - [1.2.3.1. Request port result](#1231-request-port-result)
-    - [1.2.4. Device setting packet](#124-device-setting-packet)
-      - [1.2.4.1. Beacon order and Super frame order](#1241-beacon-order-and-super-frame-order)
-      - [1.2.4.2. Device ID](#1242-device-id)
-    - [1.2.5. Device light control packet](#125-device-light-control-packet)
-      - [1.2.5.1. Blink interval](#1251-blink-interval)
-      - [1.2.5.2. Color code in RGB](#1252-color-code-in-rgb)
-    - [1.2.6. Device sleep control packet](#126-device-sleep-control-packet)
-      - [1.2.6.1. Device sleep control](#1261-device-sleep-control)
-    - [1.2.7. Station ready packet](#127-station-ready-packet)
-    - [1.2.8. Device data packet](#128-device-data-packet)
-      - [1.2.8.1. Frame ID](#1281-frame-id)
-      - [1.2.8.2. Device data](#1282-device-data)
-    - [1.2.9. Device data with time stamp and CIR packet](#129-device-data-with-time-stamp-and-cir-packet)
-      - [1.2.9.1. Time stamp](#1291-time-stamp)
-      - [1.2.9.2. Diagnostic data](#1292-diagnostic-data)
-      - [1.2.9.3. Dummy byte and CIR data](#1293-dummy-byte-and-cir-data)
-    - [1.2.10. Device info packet](#1210-device-info-packet)
-      - [1.2.10.1. Device type](#12101-device-type)
-    - [1.2.11. Device data count packet](#1211-device-data-count-packet)
-      - [1.2.11.1. Device data count](#12111-device-data-count)
+- [1. UDP packet formats](#1-udp-packet-formats)
+  - [1.1. General UDP packet format](#11-general-udp-packet-format)
+    - [1.1.1. Packet header](#111-packet-header)
+    - [1.1.2. Packet type](#112-packet-type)
+  - [1.2. Format of individual packet type](#12-format-of-individual-packet-type)
+    - [1.2.1. Server open packet](#121-server-open-packet)
+      - [1.2.1.1. About port](#1211-about-port)
+    - [1.2.2. Request port packet](#122-request-port-packet)
+      - [1.2.2.1. Base station type](#1221-base-station-type)
+    - [1.2.3. Open port packet](#123-open-port-packet)
+      - [1.2.3.1. Request port result](#1231-request-port-result)
+    - [1.2.4. Device setting packet](#124-device-setting-packet)
+      - [1.2.4.1. Beacon order and Super frame order](#1241-beacon-order-and-super-frame-order)
+      - [1.2.4.2. Device ID](#1242-device-id)
+    - [1.2.5. Device light control packet](#125-device-light-control-packet)
+      - [1.2.5.1. Blink interval](#1251-blink-interval)
+      - [1.2.5.2. Color code in RGB](#1252-color-code-in-rgb)
+    - [1.2.6. Device sleep control packet](#126-device-sleep-control-packet)
+      - [1.2.6.1. Device sleep control](#1261-device-sleep-control)
+        - [1.2.6.1.1. Auto sleep between transmission](#12611-auto-sleep-between-transmission)
+    - [1.2.7. Station ready packet](#127-station-ready-packet)
+    - [1.2.8. Device data packet](#128-device-data-packet)
+      - [1.2.8.1. Frame ID](#1281-frame-id)
+      - [1.2.8.2. Device data](#1282-device-data)
+    - [1.2.9. Device data with time stamp and CIR packet](#129-device-data-with-time-stamp-and-cir-packet)
+      - [1.2.9.1. Time stamp](#1291-time-stamp)
+      - [1.2.9.2. Diagnostic data](#1292-diagnostic-data)
+      - [1.2.9.3. Dummy byte and CIR data](#1293-dummy-byte-and-cir-data)
+    - [1.2.10. Device info packet](#1210-device-info-packet)
+      - [1.2.10.1. Device type](#12101-device-type)
+    - [1.2.11. Device data count packet](#1211-device-data-count-packet)
+      - [1.2.11.1. Device data count](#12111-device-data-count)
 
 ## 1.1. General UDP packet format
 
 The general UDP packet format for the communication between a UWB base station and
 a server is defined in the table below.
+
+**_All values are encoded in little-endian by default._**
 
 | Bytes:1       | 2           | n              |
 | ------------- | ----------- | -------------- |
@@ -91,8 +94,6 @@ base stations, says sending to address like `192.168.0.255`._**
 **_The port for all base stations receiving data from server is 8082._**
 
 #### 1.2.1.1. About port
-
-<!-- TODO: emphasize little endian at the very beginning of this document. -->
 
 All ports are defined to store data in little endian form occupying two bytes.
 For example, the port of a server opening at 8086, which is `0x1F96` in Hex,
@@ -224,9 +225,9 @@ This byte control the blink interval of LED.
 
 #### 1.2.5.2. Color code in RGB
 
-| Bytes:1 |   1   |  1   |
-| :-----: | :---: | :--: |
-|   Red   | Green | Blue |
+| Bytes:1 |   1   |   1   |
+| :-----: | :---: | :---: |
+|   Red   | Green | Blue  |
 
 Based on the color will infect the brightness of the RGB LED.
 The color should not be larger than 255.
@@ -249,12 +250,18 @@ Control the sleep and wake up behavior of device.
 This byte define the sleep and wake up related behavior of a device.
 A `0` bit for disable the function, while a `1` bit for enable the function.
 
-|            Function             | Description                                                                                                                                                                                                                                                                                                                                                                                                                               | Default value |
-| :-----------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----------: |
-| Auto sleep between transmission | The device will enter sleep mode once it successfully transmit a data frame to base stations. For example, if the sample interval is set to 10 ms, the device will enter sleep for around 8 ms and use 1ms to wakeup and then transmit the next data frame, which will largely decrease the power consumption. This configuration only works for sample interval larger than 3ms because it will takes around 1.5 ms to wakeup the device |       1       |
-|      Auto sleep when idle       | Device will enter sleep when it do not receive any beacon or receive the same beacon for 60 second                                                                                                                                                                                                                                                                                                                                        |       0       |
-|      Auto sleep when rest       | Device will enter sleep when it not move for 60 seconds                                                                                                                                                                                                                                                                                                                                                                                   |       0       |
-|      Auto wakeup when move      | Device will be waken up from sleep when it is moved                                                                                                                                                                                                                                                                                                                                                                                       |       0       |
+|            Function             | Description                                                                                        | Default value |
+| :-----------------------------: | -------------------------------------------------------------------------------------------------- | :-----------: |
+| Auto sleep between transmission | The device will enter sleep mode once it successfully transmit a data frame to base stations       |       1       |
+|      Auto sleep when idle       | Device will enter sleep when it do not receive any beacon or receive the same beacon for 60 second |       0       |
+|      Auto sleep when rest       | Device will enter sleep when it not move for 60 seconds                                            |       0       |
+|      Auto wakeup when move      | Device will be waken up from sleep when it is moved                                                |       0       |
+
+##### 1.2.6.1.1. Auto sleep between transmission
+
+For example, if the sample interval is set to 10 ms, the device will enter sleep for around 8 ms
+and use 1ms to wakeup and then transmit the next data frame, which will largely decrease the power consumption.
+This configuration only works for sample interval larger than 3ms because it will takes around 1.5 ms to wakeup the device.
 
 ### 1.2.7. Station ready packet
 
@@ -281,6 +288,11 @@ Send the data received by the base station to server without timestamps.
 <!-- should this ID occupying longer space because of the small range of one byte-->
 <!-- (0 -- 255)? -->
 
+<!-- Reply: -->
+<!-- The length of ID is defined by the IEEE 802.15.4, -->
+<!-- refer to [802154-2015 p151](./../%E6%96%87%E6%A1%A3/802154-2015.pdf). -->
+<!-- The reason why I keep the length is that server will integrates one UWB data frame received from different base stations based on their IDs. -->
+<!-- So one byte is enough I think. -->
 It is a one-byte Frame ID that keep increase from 0x00 to 0xFF.
 For one sample interval, Frame ID should be same for all devices.
 
@@ -315,14 +327,15 @@ For other data type:
 ```
 
 <!-- TODO: should the unit of acceleration be $G$ or $m/s^2$? -->
+<!-- Reply: The unit should be $G$ because the original output of IMU is in unit of $G$. -->
 <!-- INFO: in LaTeX, the unit should be typed in math environment regular font, as $\mathrm{m/s^2}$. -->
 
-|    Data type     | Range | unit        |
-| :--------------: | ----- | ----------- |
-|   Acceleration   | 16    | $g$         |
-| Angular velocity | 2000  | $\degree/s$ |
-|      Angle       | 180   | $\degree$   |
-|     Magnetic     | 0.98  | $mgauss$    |
+|    Data type     | Range | unit                 |
+| :--------------: | ----- | -------------------- |
+|   Acceleration   | 16    | $\mathrm{G}$         |
+| Angular velocity | 2000  | $\mathrm{\degree/s}$ |
+|      Angle       | 180   | $\mathrm{\degree}$   |
+|     Magnetic     | 0.98  | $\mathrm{mgauss}$    |
 
 ### 1.2.9. Device data with time stamp and CIR packet
 
@@ -375,7 +388,7 @@ info is updated.
 #### 1.2.10.1. Device type
 
 <!-- TODO: should be v0.5 or 0.4? -->
-
+<!-- Reply: v0.5 because it has not be implied at v0.4-->
 | Device type value | Description                                                         |
 | :---------------: | ------------------------------------------------------------------- |
 |      0x0001       | V0.5 UWB-IMU<br>MCU:CH32V203<br>UWB:DW3210<br>Sensor:<br>BMI270 IMU |
