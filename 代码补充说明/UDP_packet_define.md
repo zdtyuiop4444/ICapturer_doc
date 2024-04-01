@@ -34,8 +34,8 @@
 
 ## 1.1. General UDP packet format
 
-The general UDP packet format for the communication between UWB base station and
-server is defined in the Table below.
+The general UDP packet format for the communication between a UWB base station and
+a server is defined in the table below.
 
 | Bytes:1       | 2           | n              |
 | ------------- | ----------- | -------------- |
@@ -49,28 +49,29 @@ server is defined in the Table below.
 
 ### 1.1.2. Packet type
 
-The Packet type part contains two Byte, the first Byte is wether 0xCF or 0xDF,
-defines the usage of the packet, 0xCF means it used for control, 0xDF means it
-is for data transfering.
-second byte defines the specific packet type.
+The Packet type part contains two bytes.
+The first byte is either `0xCF` or `0xDF`, defining the usage of the packet.
+`0xCF` means the packet is used for control, while `0xDF` means the packet is
+used for data transferring.
+The second byte defines a specific packet type.
 
-Each type of packet has a defined transfer direction, it is wether send from
-base station to server(mark with ←) or send from server to base station(mark
-with →).
+Each type of packet has a defined transfer direction, which is either send from
+a base station to a server (mark as ←) or send from a server to a base station
+(mark with →).
 
 | Packet type value<br>Byte 1 | <br>Byte 2 | Description                                | Transfer direction |
 | :-------------------------: | :--------: | ------------------------------------------ | :----------------: |
-|            0xCF             |    0x01    | Server open Packet                         |         →          |
-|            0xCF             |    0x02    | Request port Packet                        |         ←          |
-|            0xCF             |    0x03    | Open port Packet                           |         →          |
-|            0xCF             |    0x04    | Device setting Packet                      |         →          |
-|            0xCF             |    0x05    | Device light control Packet                |         →          |
-|            0xCF             |    0x06    | Device sleep control Packet                |         →          |
-|            0xCF             |    0x07    | Station ready Packet                       |         ←          |
-|            0xDF             |    0x01    | Device data Packet                         |         ←          |
-|            0xDF             |    0x02    | Device data with time stamp and CIR Packet |         ←          |
-|            0xDF             |    0xF1    | Device info Packet                         |         ←          |
-|            0xDF             |    0xF2    | Device data count Packet                   |         ←          |
+|            0xCF             |    0x01    | Server open Packet                         |       &rarr;       |
+|            0xCF             |    0x02    | Request port Packet                        |       &larr;       |
+|            0xCF             |    0x03    | Open port Packet                           |       &rarr;       |
+|            0xCF             |    0x04    | Device setting Packet                      |       &rarr;       |
+|            0xCF             |    0x05    | Device light control Packet                |       &rarr;       |
+|            0xCF             |    0x06    | Device sleep control Packet                |       &rarr;       |
+|            0xCF             |    0x07    | Station ready Packet                       |       &larr;       |
+|            0xDF             |    0x01    | Device data Packet                         |       &larr;       |
+|            0xDF             |    0x02    | Device data with time stamp and CIR Packet |       &larr;       |
+|            0xDF             |    0xF1    | Device info Packet                         |       &larr;       |
+|            0xDF             |    0xF2    | Device data count Packet                   |       &larr;       |
 
 ## 1.2. Format of individual packet type
 
@@ -81,30 +82,32 @@ with →).
 | Packet header | Packet type |   Server port    |
 |     0xFD      |   0xCF01    | 2 bytes variable |
 
-Inform all the base station that this server could be access now and give the
-open port of server to receive data packet form base stations.
+This packet informs all base stations that the server could be access now
+and give the open port of server to receive data packet form base stations.
 
 **_This packet that send form server to base station should be boardcast to all
-base stations like send to 192.168.0.255_**
+base stations, says sending to address like `192.168.0.255`._**
 
-**_The port for all base stations to receive data from server is 8082_**
+**_The port for all base stations receiving data from server is 8082._**
 
 #### 1.2.1.1. About port
 
-All ports is defined to store in little endian use two bytes.
-For example is the server open port 8086, which is 0x1F96 in Hex, the two byte
-for Server port part will be 0x96 0x1F.
+<!-- TODO: emphasize little endian at the very beginning of this document. -->
+
+All ports are defined to store data in little endian form occupying two bytes.
+For example, the port of a server opening at 8086, which is `0x1F96` in Hex,
+would be send as `0x96 0x1F`.
 
 ### 1.2.2. Request port packet
 
-|    Bytes:1    |      2      |         1         |       2        |
-| :-----------: | :---------: | :---------------: | :------------: | ---------------- |
-| Packet header | Packet type | Base station type | Requested port |
-|     0xFD      |   0xCF02    |       0x0F        |      0xF0      | 2 bytes variable |
+|    Bytes:1    |      2      |         1         |        2         |
+| :-----------: | :---------: | :---------------: | :--------------: |
+| Packet header | Packet type | Base station type |  Requested port  |
+|     0xFD      |   0xCF02    |  0x0F&#124;0xF0   | 2 bytes variable |
 
-When the port informed by Server open packet is conflict with other application,
-the base station could send this packet to server to request a new port for data
-transmittion.
+When the port informed by a server open packet is in conflict with other
+applications, the base station can send this packet to the server requesting a
+new port for data transmission.
 
 #### 1.2.2.1. Base station type
 
@@ -117,13 +120,12 @@ The type of this base station.
 
 ### 1.2.3. Open port packet
 
-|    Bytes:1    |      2      |          1          |      2      |
-| :-----------: | :---------: | :-----------------: | :---------: | ---- | ---------------- |
-| Packet header | Packet type | Requset port result | Opened port |
-|     0xFD      |   0xCF03    |        0x00         |    0x0F     | 0xFF | 2 bytes variable |
+|    Bytes:1    |      2      |            1             |        2         |
+| :-----------: | :---------: | :----------------------: | :--------------: |
+| Packet header | Packet type |   Request port result    |   Opened port    |
+|     0xFD      |   0xCF03    | 0x00&#124;0x0F&#124;0xFF | 2 bytes variable |
 
-This packet tells the result of the Request port packet of base station, and
-tell it the port opened.
+This packet replies the request of opening a base station port.
 
 #### 1.2.3.1. Request port result
 
@@ -133,7 +135,7 @@ tell it the port opened.
 |           0x0F            | Open another port |
 |           0xFF            | Reject            |
 
-The result of request port.
+The result of the request port.
 
 ### 1.2.4. Device setting packet
 
@@ -142,19 +144,19 @@ The result of request port.
 | Packet header | Packet type | Beacon order and Super frame order |  Device ID list  |
 |     0xFD      |   0xCF04    |          1 bytes variable          | n bytes variable |
 
-Setting the beacon order (The beacon sending interval of main base station), and
-super frame order (The UWB sample interval of device) for the devices in device
-ID list.
+This packet sets the beacon order (the beacon sending interval of main base
+station), and the super frame order (the UWB sample interval of device) for the
+devices in device ID list.
 The device ID list could be empty to set all device at the same time.
 
 #### 1.2.4.1. Beacon order and Super frame order
 
-This part is actually pack 2 parts of setting in one byte based on the
-IEEE802.15.4 specifcation.
+This part is actually pack 2 parts of setting in one byte based on the IEEE
+802.15.4 specification.
 
-|       Bits:4       |         4          |
+|    Bits:1 -- 4     |       5 -- 8       |
 | :----------------: | :----------------: |
-|    Beacon order    | Surper frame order |
+|    Beacon order    | Super frame order  |
 | 4 bits of variable | 4 bits of variable |
 
 | Beacon order value | Description                 |
@@ -197,8 +199,9 @@ IEEE802.15.4 specifcation.
 
 #### 1.2.4.2. Device ID
 
-The device ID is a 1 byte short ID of UWB device from 0x00 to 0xFF, device ID
-will be dynamicly allocate to UWB device when it connect to the UWB network.
+The device ID is a 1 byte short ID of UWB devices from `0x00` to `0xFF`.
+The device ID will be dynamically allocate to UWB devices when the device
+connects to a UWB network.
 
 ### 1.2.5. Device light control packet
 
@@ -207,7 +210,7 @@ will be dynamicly allocate to UWB device when it connect to the UWB network.
 | Packet header | Packet type |  Blink interval  | Color code in RGB |  Device ID list  |
 |     0xFD      |   0xCF05    | 1 bytes variable | 3 bytes variable  | n bytes variable |
 
-Control the RGB LED on device in device ID list.
+Control the RGB LED on devices in the device ID list.
 
 #### 1.2.5.1. Blink interval
 
@@ -225,8 +228,8 @@ This byte control the blink interval of LED.
 | :-----: | :---: | :--: |
 |   Red   | Green | Blue |
 
-Based on the color will infect the brightness of the RGB LED, the color should
-not be larger than 255.
+Based on the color will infect the brightness of the RGB LED.
+The color should not be larger than 255.
 
 ### 1.2.6. Device sleep control packet
 
@@ -235,23 +238,23 @@ not be larger than 255.
 | Packet header | Packet type | Device sleep control |  Device ID list  |
 |     0xFD      |   0xCF06    |   1 bytes variable   | n bytes variable |
 
-Control the sleep and wakeup behavior of device.
+Control the sleep and wake up behavior of device.
 
 #### 1.2.6.1. Device sleep control
 
-|             Bits:1              |          1           |          1           |           1           |    1     |    1     |    1     |    1     |
+|             Bits:1              |          2           |          3           |           4           |    5     |    6     |    7     |    8     |
 | :-----------------------------: | :------------------: | :------------------: | :-------------------: | :------: | :------: | :------: | :------: |
 | Auto sleep between transmission | Auto sleep when idle | Auto sleep when rest | Auto wakeup when move | Reserved | Reserved | Reserved | Reserved |
 
-This byte define the sleep and wakeup related behavior of a device.
-0 for disable the function, 1 for enable the funciton.
+This byte define the sleep and wake up related behavior of a device.
+A `0` bit for disable the function, while a `1` bit for enable the function.
 
-|            Function             | Description                                                                                                                                                                                                                                                                                                                                                                                                                | Default value |
-| :-----------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----------: |
-| Auto sleep between transmission | Device will enter sleep mode once it successfully transmit a data frame to base stations, for example, if the sample interval is set to 10 ms, the device will enter sleep for around 8ms and use 1ms to wakeup then transmit the next data frame, this will largely decrease power consumption. This configuration only work for sample interval larger than 3ms because it will takes around 1.5 ms to wakeup the device |       1       |
-|      Auto sleep when idle       | Device will enter sleep when it do not receive any beacon or receive the same beacon for 60 second                                                                                                                                                                                                                                                                                                                         |       0       |
-|      Auto sleep when rest       | Device will enter sleep when it not move for 60 second                                                                                                                                                                                                                                                                                                                                                                     |       0       |
-|      Auto wakeup when move      | Device will wakeup from sleep when it is moved                                                                                                                                                                                                                                                                                                                                                                             |       0       |
+|            Function             | Description                                                                                                                                                                                                                                                                                                                                                                                                                               | Default value |
+| :-----------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----------: |
+| Auto sleep between transmission | The device will enter sleep mode once it successfully transmit a data frame to base stations. For example, if the sample interval is set to 10 ms, the device will enter sleep for around 8 ms and use 1ms to wakeup and then transmit the next data frame, which will largely decrease the power consumption. This configuration only works for sample interval larger than 3ms because it will takes around 1.5 ms to wakeup the device |       1       |
+|      Auto sleep when idle       | Device will enter sleep when it do not receive any beacon or receive the same beacon for 60 second                                                                                                                                                                                                                                                                                                                                        |       0       |
+|      Auto sleep when rest       | Device will enter sleep when it not move for 60 seconds                                                                                                                                                                                                                                                                                                                                                                                   |       0       |
+|      Auto wakeup when move      | Device will be waken up from sleep when it is moved                                                                                                                                                                                                                                                                                                                                                                                       |       0       |
 
 ### 1.2.7. Station ready packet
 
@@ -260,7 +263,7 @@ This byte define the sleep and wakeup related behavior of a device.
 | Packet header | Packet type | Base station port |
 |     0xFD      |   0xCF07    | 2 bytes variable  |
 
-Tell the server that the base station is available for data transmition and
+Tell the server that the base station is available for data transmission and
 notify the port base station use to send data.
 
 ### 1.2.8. Device data packet
@@ -270,11 +273,15 @@ notify the port base station use to send data.
 | Packet header | Packet type |     Frame ID     |    Device ID     |    Device data    |
 |     0xFD      |   0xDF01    | 1 bytes variable | 1 bytes variable | 24 bytes variable |
 
-Send the data received by base station to server without timestamps.
+Send the data received by the base station to server without timestamps.
 
 #### 1.2.8.1. Frame ID
 
-It is 1 byte Frame ID that keep increase from 0x00 to 0xFF.
+<!-- TODO: -->
+<!-- should this ID occupying longer space because of the small range of one byte-->
+<!-- (0 -- 255)? -->
+
+It is a one-byte Frame ID that keep increase from 0x00 to 0xFF.
 For one sample interval, Frame ID should be same for all devices.
 
 #### 1.2.8.2. Device data
@@ -286,40 +293,43 @@ For one sample interval, Frame ID should be same for all devices.
 
 The device data contains four different types of data.
 Each contains 3 axis(x, y, z) of data.
-Every data is 16bit signed int.
+Every data is a 16-bit signed integer.
 
 | Bytes:1  |    1     |    1     |    1     |    1     |    1     |
 | :------: | :------: | :------: | :------: | :------: | :------: |
 | X data L | X data H | Y data L | Y data H | Z data L | Z data H |
 
-To process the data, you need to convert 2 bytes into int then multipily the
+To process the data, you need to convert 2 bytes into integer then multiply the
 range of sensor.
 
 For magnetic:
 
 ```c
-((int)dataH<<8|dataL)*1.0*range
+((int) dataH << 8 | dataL) * 1.0 * range
 ```
 
 For other data type:
 
 ```c
-((int)dataH<<8|dataL)*1.0/32768*range
+((int) dataH << 8 | dataL) * 1.0 / 32768 * range
 ```
 
-|    Data type     | Range | unit         |
-| :--------------: | ----- | ------------ |
-|   Acceleration   | 16    | $g$          |
-| Angular velocity | 2000  | $\\degree/s$ |
-|      Angle       | 180   | $\\degree$   |
-|     Magnetic     | 0.98  | $mgauss$     |
+<!-- TODO: should the unit of acceleration be $G$ or $m/s^2$? -->
+<!-- INFO: in LaTeX, the unit should be typed in math environment regular font, as $\mathrm{m/s^2}$. -->
+
+|    Data type     | Range | unit        |
+| :--------------: | ----- | ----------- |
+|   Acceleration   | 16    | $g$         |
+| Angular velocity | 2000  | $\degree/s$ |
+|      Angle       | 180   | $\degree$   |
+|     Magnetic     | 0.98  | $mgauss$    |
 
 ### 1.2.9. Device data with time stamp and CIR packet
 
 |    Bytes:1    |      2      |        1         |        1         |        24         |        4         |        24         |     1      |        1152         |
 | :-----------: | :---------: | :--------------: | :--------------: | :---------------: | :--------------: | :---------------: | :--------: | :-----------------: |
-| Packet header | Packet type |     Frame ID     |    Device ID     |    Device data    |    Time stamp    |  Diagnostic data  | dummy byte |      CIR data       |
-|     0xFD      |   0xDF02    | 1 bytes variable | 1 bytes variable | 24 bytes variable | 4 bytes variable | 24 bytes variable |    0x00    | 1152 bytes variable |
+| Packet Header | Packet Type |     Frame ID     |    Device ID     |     IMU Data      |    Timestamp     |  Diagnostic Data  | Dummy Byte |      CIR data       |
+|     0xFD      |   0xDF02    | 1 bytes variable | 1 bytes variable | 24 bytes variable | 4 bytes variable | 24 bytes variable |   `0x00`   | 1152 bytes variable |
 
 Send the data received by base station to server with timestamps.
 
@@ -335,7 +345,7 @@ To process timestamp:
 timestamp3<<24|timestamp2<<16|timestamp1<<8|timestamp0*15.65
 ```
 
-The time unit is $ps$.
+The time unit is $\mathrm{ps}$.
 
 #### 1.2.9.2. Diagnostic data
 
@@ -343,15 +353,14 @@ The time unit is $ps$.
 | :--------: | :---------: | :------: | :------: | :------: | :-----------: | :--------------: |
 | ipatovPeak | ipatovPower | ipatovF1 | ipatovF2 | ipatovF3 | ipatovFpIndex | ipatovAccumCount |
 
-The diag data of received UWB frame, refer to user manual
+The diagnostic data of received UWB frame, refer to user manual
 [DW3000 User manual](./../%E6%96%87%E6%A1%A3/DW3000-User-Manual.pdf), and
 [api guide p80](./../%E6%96%87%E6%A1%A3/DW3000_Software_API_Guide.pdf).
 
 #### 1.2.9.3. Dummy byte and CIR data
 
-One byte dummy data and CIR data from index 700 to 891.
-refer to
-[api guide p77](./../%E6%96%87%E6%A1%A3/DW3000_Software_API_Guide.pdf).
+One byte dummy data and CIR data from index 700 to 891,
+referring to [api guide p77](./../文档/DW3000_Software_API_Guide.pdf).
 
 ### 1.2.10. Device info packet
 
@@ -360,16 +369,18 @@ refer to
 | Packet header | Packet type |    Device ID     |   Device type    | Battery persentage |
 |     0xFD      |   0xDFF1    | 1 bytes variable | 2 bytes variable |  2 bytes variable  |
 
-Base station will inform Server the device info when it connected, or the device
+The base station will inform a server the device info when it connected, or the device
 info is updated.
 
 #### 1.2.10.1. Device type
+
+<!-- TODO: should be v0.5 or 0.4? -->
 
 | Device type value | Description                                                         |
 | :---------------: | ------------------------------------------------------------------- |
 |      0x0001       | V0.5 UWB-IMU<br>MCU:CH32V203<br>UWB:DW3210<br>Sensor:<br>BMI270 IMU |
 
-Indecate the type of device.
+This byte indecate the type of device.
 
 ### 1.2.11. Device data count packet
 
@@ -378,7 +389,7 @@ Indecate the type of device.
 | Packet header | Packet type | Device data count list |
 |     0xFD      |   0xDFF2    |   3n bytes variable    |
 
-Tell the server how many UWB frame the base station has received.
+Tell the server how many UWB frames the base station has received.
 
 #### 1.2.11.1. Device data count
 
